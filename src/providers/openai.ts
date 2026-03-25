@@ -48,7 +48,7 @@ export const openai: Provider = {
 
       transcribe: async (audio: Buffer, mimetype: string): Promise<string> => {
         const ext = mimeToExt(mimetype);
-        const file = new File([audio], `audio${ext}`, { type: mimetype });
+        const file = new File([new Uint8Array(audio)], `audio${ext}`, { type: mimetype });
 
         const formData = new FormData();
         formData.append(
