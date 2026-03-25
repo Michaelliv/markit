@@ -125,27 +125,59 @@ markit onboard
 markit is also a library:
 
 ```typescript
-import { Mill } from "markit-ai";
+import { Markit } from "markit-ai";
 
-const markit = new Mill();
+const markit = new Markit();
 const { markdown } = await markit.convertFile("report.pdf");
 const { markdown } = await markit.convertUrl("https://example.com");
 const { markdown } = await markit.convert(buffer, { extension: ".docx" });
 ```
 
-With AI features:
+With AI features — pass plain functions, use any provider:
 
 ```typescript
 import OpenAI from "openai";
-import { Mill } from "markit-ai";
+import { Markit } from "markit-ai";
 
-const markit = new Mill({
-  llmClient: new OpenAI(),
-  llmModel: "gpt-4o",
+const openai = new OpenAI();
+
+const markit = new Markit({
+  describe: async (image, mime) => {
+    const res = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [{ role: "user", content: [
+        { type: "text", text: "Describe this image." },
+        { type: "image_url", image_url: { url: `data:${mime};base64,${image.toString("base64")}` } },
+      ]}],
+    });
+    return res.choices[0].message.content ?? "";
+  },
+  transcribe: async (audio, mime) => {
+    const res = await openai.audio.transcriptions.create({
+      model: "gpt-4o-mini-transcribe",
+      file: new File([audio], "audio.mp3", { type: mime }),
+    });
+    return res.text;
+  },
 });
+```
 
-const { markdown } = await markit.convertFile("photo.jpg");
-// → EXIF metadata + AI-generated description
+Mix providers — Claude for vision, OpenAI for audio, whatever:
+
+```typescript
+const markit = new Markit({
+  describe: async (image, mime) => {
+    const res = await anthropic.messages.create({
+      model: "claude-sonnet-4-20250514",
+      messages: [{ role: "user", content: [
+        { type: "image", source: { type: "base64", media_type: mime, data: image.toString("base64") } },
+        { type: "text", text: "Describe this image." },
+      ]}],
+    });
+    return res.content[0].text;
+  },
+  transcribe: async (audio, mime) => { /* Whisper, Deepgram, AssemblyAI, ... */ },
+});
 ```
 
 Individual converters are importable too:
@@ -194,7 +226,6 @@ Env vars override config:
 ```bash
 markit <source>                          # Convert file or URL
 markit <source> -o output.md             # Write to file
-markit <source> -m gpt-4o-mini           # Override LLM model
 markit <source> --json                   # JSON output
 markit <source> -q                       # Raw markdown only
 cat file.pdf | markit -                  # Read from stdin
