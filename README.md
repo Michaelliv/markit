@@ -1,22 +1,10 @@
 # markit
 
-🖍️ Convert anything to markdown. Mark it.
+Convert anything to markdown. PDF, DOCX, PPTX, XLSX, HTML, EPUB, Jupyter, RSS, images, audio, URLs, and more. Pluggable converters, built-in LLM providers for image description and audio transcription. Works as a CLI and as a library.
 
 ```bash
 npm install -g markit-ai
 ```
-
-## The Problem
-
-Your agent needs to read a PDF. Or a DOCX. Or a spreadsheet someone emailed you. Or a web page. Or an EPUB. Or slides from a meeting.
-
-But agents speak markdown.
-
-```bash
-markit report.pdf
-```
-
-That's it. PDF goes in, markdown comes out. Same for everything else.
 
 ---
 
