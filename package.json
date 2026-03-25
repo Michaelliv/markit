@@ -1,6 +1,6 @@
 {
   "name": "markit-ai",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Convert anything to markdown. PDFs, DOCX, HTML, URLs — everything gets milled.",
   "type": "module",
   "main": "dist/index.js",
@@ -8,7 +8,9 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
     }
   },
   "bin": {
