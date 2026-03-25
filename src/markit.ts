@@ -18,17 +18,19 @@ import { ZipConverter } from "./converters/zip.js";
 import { ImageConverter } from "./converters/image.js";
 import { AudioConverter } from "./converters/audio.js";
 import { PlainTextConverter } from "./converters/plain-text.js";
+import type { PluginDef } from "./plugins/types.js";
 
 export class Markit {
   private converters: Converter[] = [];
   private options: MarkitOptions;
 
-  constructor(options: MarkitOptions = {}) {
+  constructor(options: MarkitOptions = {}, plugins: PluginDef[] = []) {
     this.options = options;
 
-    // Order matters: specific formats first, generic last.
-    // URL-specific converters (Wikipedia) before generic HTML.
-    // ZIP converter gets a reference to other converters for recursive conversion.
+    // Plugin converters go first — they override builtins for the same format
+    const pluginConverters = plugins.flatMap((p) => p.converters);
+
+    // Built-in converters: specific formats first, generic last.
     const specific: Converter[] = [
       new PdfConverter(),
       new DocxConverter(),
@@ -50,12 +52,13 @@ export class Markit {
       new HtmlConverter(),
     ];
 
-    // ZIP gets all other converters for recursive extraction
-    const allNonZip = [...specific, ...generic];
+    // ZIP gets all converters (plugin + builtin) for recursive extraction
+    const allNonZip = [...pluginConverters, ...specific, ...generic];
     const zipConverter = new ZipConverter(allNonZip);
 
-    // Plain text is the ultimate catch-all
+    // Plugin converters first, then builtins, plain text last
     this.converters = [
+      ...pluginConverters,
       ...specific,
       zipConverter,
       ...generic,

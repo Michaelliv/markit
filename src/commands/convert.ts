@@ -3,6 +3,8 @@ import { extname } from "node:path";
 import { Markit } from "../markit.js";
 import { loadConfig } from "../config.js";
 import { createLlmFunctions } from "../providers/index.js";
+import { loadAllPlugins } from "../plugins/loader.js";
+import { registerProvider } from "../providers/index.js";
 import type { OutputOptions } from "../utils/output.js";
 import { output, success, error, dim, info } from "../utils/output.js";
 import { EXIT_ERROR, EXIT_UNSUPPORTED } from "../utils/exit-codes.js";
@@ -20,9 +22,17 @@ export async function convert(
   options: OutputOptions & { output?: string; prompt?: string },
 ): Promise<void> {
   const config = loadConfig();
-  const llmFunctions = createLlmFunctions(config, options.prompt);
+  const plugins = await loadAllPlugins();
 
-  const markit = new Markit(llmFunctions);
+  // Register any providers from plugins
+  for (const plugin of plugins) {
+    for (const provider of plugin.providers) {
+      registerProvider(provider);
+    }
+  }
+
+  const llmFunctions = createLlmFunctions(config, options.prompt);
+  const markit = new Markit(llmFunctions, plugins);
 
   try {
     let result;

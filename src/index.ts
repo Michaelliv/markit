@@ -27,3 +27,11 @@ export { ZipConverter } from "./converters/zip.js";
 export { ImageConverter } from "./converters/image.js";
 export { AudioConverter } from "./converters/audio.js";
 export { PlainTextConverter } from "./converters/plain-text.js";
+export type { MarkitPluginAPI, PluginFunction, PluginDef } from "./plugins/types.js";
+export { createPluginAPI, resolvePluginExport } from "./plugins/api.js";
+export { loadPluginFromPath, loadAllPlugins } from "./plugins/loader.js";
+export {
+  installPlugin,
+  removePlugin,
+  listInstalled,
+} from "./plugins/installer.js";

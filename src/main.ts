@@ -7,6 +7,7 @@ import { onboard } from "./commands/onboard.js";
 import { formats } from "./commands/formats.js";
 import { init } from "./commands/init.js";
 import { configShow, configGet, configSet } from "./commands/config.js";
+import { pluginInstall, pluginRemove, pluginList } from "./commands/plugin.js";
 
 const require = createRequire(import.meta.url);
 const { version } = require("../package.json");
@@ -87,6 +88,34 @@ configCmd
   .action(async (key, value, _opts, cmd) => {
     const globals = cmd.optsWithGlobals();
     await configSet(key, value, { json: globals.json, quiet: globals.quiet });
+  });
+
+const pluginCmd = program
+  .command("plugin")
+  .description("Manage plugins");
+
+pluginCmd
+  .command("install <source>")
+  .description("Install a plugin (npm:pkg, git:url, or local path)")
+  .action(async (source, _opts, cmd) => {
+    const globals = cmd.optsWithGlobals();
+    await pluginInstall(source, { json: globals.json, quiet: globals.quiet });
+  });
+
+pluginCmd
+  .command("remove <name>")
+  .description("Remove an installed plugin")
+  .action(async (name, _opts, cmd) => {
+    const globals = cmd.optsWithGlobals();
+    await pluginRemove(name, { json: globals.json, quiet: globals.quiet });
+  });
+
+pluginCmd
+  .command("list")
+  .description("List installed plugins")
+  .action(async (_opts, cmd) => {
+    const globals = cmd.optsWithGlobals();
+    await pluginList({ json: globals.json, quiet: globals.quiet });
   });
 
 program
