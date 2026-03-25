@@ -1,10 +1,10 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-const DATA_DIR = ".mill";
+const DATA_DIR = ".markit";
 const CONFIG_FILE = "config.json";
 
-export interface MillConfig {
+export interface MarkitConfig {
   llm?: {
     /** OpenAI-compatible API base URL (default: https://api.openai.com/v1) */
     apiBase?: string;
@@ -17,10 +17,10 @@ export interface MillConfig {
   };
 }
 
-const DEFAULT_CONFIG: MillConfig = {};
+const DEFAULT_CONFIG: MarkitConfig = {};
 
 /**
- * Walk up from cwd to find .mill/ directory.
+ * Walk up from cwd to find .markit/ directory.
  */
 export function findConfigDir(): string | null {
   let dir = process.cwd();
@@ -35,9 +35,9 @@ export function findConfigDir(): string | null {
 }
 
 /**
- * Load config from .mill/config.json, merging with defaults.
+ * Load config from .markit/config.json, merging with defaults.
  */
-export function loadConfig(): MillConfig {
+export function loadConfig(): MarkitConfig {
   const configDir = findConfigDir();
   if (!configDir) return { ...DEFAULT_CONFIG };
 
@@ -53,9 +53,9 @@ export function loadConfig(): MillConfig {
 }
 
 /**
- * Save config to .mill/config.json. Creates .mill/ if needed.
+ * Save config to .markit/config.json. Creates .markit/ if needed.
  */
-export function saveConfig(config: MillConfig): void {
+export function saveConfig(config: MarkitConfig): void {
   const configDir = findConfigDir();
   const dir = configDir || join(process.cwd(), DATA_DIR);
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
@@ -67,12 +67,12 @@ export function saveConfig(config: MillConfig): void {
 
 /**
  * Resolve the API key. Precedence: env var > config file.
- * Checks: OPENAI_API_KEY, MILL_API_KEY
+ * Checks: OPENAI_API_KEY, MARKIT_API_KEY
  */
-export function resolveApiKey(config: MillConfig): string | undefined {
+export function resolveApiKey(config: MarkitConfig): string | undefined {
   return (
     process.env.OPENAI_API_KEY ||
-    process.env.MILL_API_KEY ||
+    process.env.MARKIT_API_KEY ||
     config.llm?.apiKey
   );
 }
@@ -80,11 +80,11 @@ export function resolveApiKey(config: MillConfig): string | undefined {
 /**
  * Resolve the API base URL. Precedence: env var > config file > default.
  */
-export function resolveApiBase(config: MillConfig): string {
+export function resolveApiBase(config: MarkitConfig): string {
   return (
     process.env.OPENAI_API_BASE ||
     process.env.OPENAI_BASE_URL ||
-    process.env.MILL_API_BASE ||
+    process.env.MARKIT_API_BASE ||
     config.llm?.apiBase ||
     "https://api.openai.com/v1"
   );
@@ -94,12 +94,12 @@ export function resolveApiBase(config: MillConfig): string {
  * Resolve the model. Precedence: flag > env var > config file > default.
  */
 export function resolveModel(
-  config: MillConfig,
+  config: MarkitConfig,
   flagValue?: string,
 ): string {
   return (
     flagValue ||
-    process.env.MILL_MODEL ||
+    process.env.MARKIT_MODEL ||
     config.llm?.model ||
     "gpt-4o"
   );
@@ -108,6 +108,6 @@ export function resolveModel(
 /**
  * Resolve the transcription model.
  */
-export function resolveTranscriptionModel(config: MillConfig): string {
+export function resolveTranscriptionModel(config: MarkitConfig): string {
   return config.llm?.transcriptionModel || "gpt-4o-mini-transcribe";
 }

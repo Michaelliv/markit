@@ -1,5 +1,5 @@
 {
-  "name": "mill-ai",
+  "name": "markit-ai",
   "version": "0.1.0",
   "description": "Convert anything to markdown. PDFs, DOCX, HTML, URLs — everything gets milled.",
   "type": "module",
@@ -12,7 +12,7 @@
     }
   },
   "bin": {
-    "mill": "./dist/main.js"
+    "markit": "./dist/main.js"
   },
   "files": [
     "dist"
@@ -32,11 +32,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Michaelliv/mill.git"
+    "url": "git+https://github.com/Michaelliv/markit.git"
   },
-  "homepage": "https://github.com/Michaelliv/mill#readme",
+  "homepage": "https://github.com/Michaelliv/markit#readme",
   "bugs": {
-    "url": "https://github.com/Michaelliv/mill/issues"
+    "url": "https://github.com/Michaelliv/markit/issues"
   },
   "keywords": [
     "markdown",

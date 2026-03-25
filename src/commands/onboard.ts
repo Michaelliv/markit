@@ -5,20 +5,20 @@ import { output, success } from "../utils/output.js";
 
 const INSTRUCTIONS = `
 <mill>
-Use \`mill\` to convert files and URLs to markdown. Supports PDF, DOCX, HTML, XLSX, CSV, JSON, and plain text.
+Use \`markit\` to convert files and URLs to markdown. Supports PDF, DOCX, HTML, XLSX, CSV, JSON, and plain text.
 
 <commands>
-- \`mill <file-or-url>\` - convert to markdown (stdout)
-- \`mill <file-or-url> -o output.md\` - convert to file
-- \`mill formats\` - list supported formats
+- \`markit <file-or-url>\` - convert to markdown (stdout)
+- \`markit <file-or-url> -o output.md\` - convert to file
+- \`markit formats\` - list supported formats
 </commands>
 
 <rules>
 - Use \`--json\` flag to get structured output for parsing
 - Use \`-q\` to get raw markdown without formatting
-- Pipe output directly: \`mill report.pdf | other-tool\`
+- Pipe output directly: \`markit report.pdf | other-tool\`
 </rules>
-</mill>
+</markit>
 `.trim();
 
 const MARKER = "<mill>";
@@ -68,6 +68,6 @@ export async function onboard(
 
   output(options, {
     json: () => ({ success: true, file: targetFile }),
-    human: () => success(`Added mill instructions to ${targetFile}`),
+    human: () => success(`Added markit instructions to ${targetFile}`),
   });
 }

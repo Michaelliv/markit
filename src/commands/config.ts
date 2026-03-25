@@ -27,7 +27,7 @@ export async function configShow(
       if (configDir) {
         console.log(`  ${dim("config:")} ${configDir}/config.json`);
       } else {
-        console.log(`  ${dim("config:")} none (run 'mill init')`);
+        console.log(`  ${dim("config:")} none (run 'markit init')`);
       }
       console.log();
       console.log(bold("LLM Settings"));
@@ -79,8 +79,8 @@ export async function configSet(
 ): Promise<void> {
   if (!findConfigDir()) {
     output(options, {
-      json: () => ({ success: false, error: "No .mill/ directory. Run 'mill init'" }),
-      human: () => error("No .mill/ directory. Run 'mill init' first."),
+      json: () => ({ success: false, error: "No .markit/ directory. Run 'markit init'" }),
+      human: () => error("No .markit/ directory. Run 'markit init' first."),
     });
     process.exit(EXIT_ERROR);
   }

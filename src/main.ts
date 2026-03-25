@@ -14,9 +14,9 @@ const { version } = require("../package.json");
 const program = new Command();
 
 program
-  .name("mill")
+  .name("markit")
   .description("Convert anything to markdown. Everything gets milled.")
-  .version(`mill ${version}`, "-V, --version")
+  .version(`markit ${version}`, "-V, --version")
   .option("--json", "Output as JSON")
   .option("-q, --quiet", "Raw markdown only, no decoration")
   .option("-m, --model <model>", "LLM model for image/audio (default: gpt-4o)")
@@ -24,16 +24,16 @@ program
     "after",
     `
 Examples:
-  $ mill report.pdf                  Convert a PDF to markdown
-  $ mill document.docx -o doc.md     Convert DOCX, write to file
-  $ mill https://example.com         Convert a web page
-  $ mill photo.jpg                    Extract EXIF + AI description
-  $ mill recording.mp3               Metadata + transcription
-  $ cat file.pdf | mill -            Read from stdin
-  $ mill init                        Create .mill/ config
-  $ mill config show                 Show LLM settings
+  $ markit report.pdf                  Convert a PDF to markdown
+  $ markit document.docx -o doc.md     Convert DOCX, write to file
+  $ markit https://example.com         Convert a web page
+  $ markit photo.jpg                    Extract EXIF + AI description
+  $ markit recording.mp3               Metadata + transcription
+  $ cat file.pdf | markit -            Read from stdin
+  $ markit init                        Create .markit/ config
+  $ markit config show                 Show LLM settings
 
-Docs: https://github.com/Michaelliv/mill`,
+Docs: https://github.com/Michaelliv/markit`,
   );
 
 program
@@ -54,7 +54,7 @@ program
 
 program
   .command("init")
-  .description("Create .mill/ config directory")
+  .description("Create .markit/ config directory")
   .action(async (_opts, cmd) => {
     const globals = cmd.optsWithGlobals();
     await init([], { json: globals.json, quiet: globals.quiet });
@@ -62,7 +62,7 @@ program
 
 const configCmd = program
   .command("config")
-  .description("Manage mill configuration");
+  .description("Manage markit configuration");
 
 configCmd
   .command("show")
@@ -98,7 +98,7 @@ program
 
 program
   .command("onboard")
-  .description("Add mill instructions to CLAUDE.md or AGENTS.md")
+  .description("Add markit instructions to CLAUDE.md or AGENTS.md")
   .action(async (_opts, cmd) => {
     const globals = cmd.optsWithGlobals();
     await onboard([], { json: globals.json, quiet: globals.quiet });
@@ -139,23 +139,23 @@ program.on("command:*", async (args) => {
 
 // No args → show concise help
 if (process.argv.length <= 2) {
-  console.log(`mill — convert anything to markdown
+  console.log(`markit — convert anything to markdown
 
-Usage:  mill <file-or-url> [options]
+Usage:  markit <file-or-url> [options]
 
 Examples:
-  $ mill report.pdf
-  $ mill document.docx -o doc.md
-  $ mill https://example.com
+  $ markit report.pdf
+  $ markit document.docx -o doc.md
+  $ markit https://example.com
 
 Commands:
-  mill init        Create .mill/ config directory
-  mill config      Manage settings (LLM, API keys)
-  mill formats     List supported formats
-  mill onboard     Add instructions to CLAUDE.md
+  markit init        Create .markit/ config directory
+  markit config      Manage settings (LLM, API keys)
+  markit formats     List supported formats
+  markit onboard     Add instructions to CLAUDE.md
 
-Run mill --help for all options.
-Docs: https://github.com/Michaelliv/mill`);
+Run markit --help for all options.
+Docs: https://github.com/Michaelliv/markit`);
   process.exit(0);
 }
 

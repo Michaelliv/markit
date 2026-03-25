@@ -19,7 +19,7 @@ import { ImageConverter } from "./converters/image.js";
 import { AudioConverter } from "./converters/audio.js";
 import { PlainTextConverter } from "./converters/plain-text.js";
 
-export class Mill {
+export class Markit {
   private converters: Converter[] = [];
   private options: ConvertOptions;
 

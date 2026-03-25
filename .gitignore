@@ -19,7 +19,7 @@ bun.lockb
 bun.lock
 
 # Config (may contain API keys)
-.mill/
+.markit/
 
 # dotenv
 .env

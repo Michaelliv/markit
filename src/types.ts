@@ -25,10 +25,10 @@ export interface ConvertOptions {
  *
  * Usage with official SDK:
  *   import OpenAI from "openai";
- *   const mill = new Mill({ llmClient: new OpenAI() as LlmClient, llmModel: "gpt-4o" });
+ *   const markit = new Markit({ llmClient: new OpenAI() as LlmClient, llmModel: "gpt-4o" });
  *
  * Usage with raw fetch (built-in, see llm.ts):
- *   const mill = new Mill({ llmClient: createLlmClient(config), llmModel: "gpt-4o" });
+ *   const markit = new Markit({ llmClient: createLlmClient(config), llmModel: "gpt-4o" });
  */
 export interface LlmClient {
   chat: {

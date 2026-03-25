@@ -1,4 +1,4 @@
-export { Mill } from "./mill.js";
+export { Markit } from "./markit.js";
 export type { Converter, ConversionResult, StreamInfo, ConvertOptions, LlmClient } from "./types.js";
 export { PdfConverter } from "./converters/pdf.js";
 export { DocxConverter } from "./converters/docx.js";

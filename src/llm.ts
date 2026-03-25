@@ -1,5 +1,5 @@
 import type { LlmClient } from "./types.js";
-import type { MillConfig } from "./config.js";
+import type { MarkitConfig } from "./config.js";
 import { resolveApiKey, resolveApiBase, resolveTranscriptionModel } from "./config.js";
 
 /**
@@ -7,7 +7,7 @@ import { resolveApiKey, resolveApiBase, resolveTranscriptionModel } from "./conf
  * Returns null if no API key is available.
  * Uses raw fetch — no openai SDK dependency.
  */
-export function createLlmClient(config: MillConfig): LlmClient | null {
+export function createLlmClient(config: MarkitConfig): LlmClient | null {
   const apiKey = resolveApiKey(config);
   if (!apiKey) return null;
 

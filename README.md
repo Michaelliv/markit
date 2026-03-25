@@ -1,9 +1,9 @@
-# mill 🏭
+# markit ✓
 
 Convert anything to markdown. Everything gets milled.
 
 ```bash
-npm install -g mill-ai
+npm install -g markit-ai
 ```
 
 ## The Problem
@@ -13,7 +13,7 @@ Your agent needs to read a PDF. Or a DOCX. Or a spreadsheet someone emailed you.
 But agents speak markdown.
 
 ```bash
-mill report.pdf
+markit report.pdf
 ```
 
 That's it. PDF goes in, markdown comes out. Same for everything else.
@@ -24,29 +24,29 @@ That's it. PDF goes in, markdown comes out. Same for everything else.
 
 ```bash
 # Documents
-mill report.pdf
-mill document.docx
-mill slides.pptx
+markit report.pdf
+markit document.docx
+markit slides.pptx
 
 # Data
-mill data.csv
-mill config.json
-mill schema.yaml
+markit data.csv
+markit config.json
+markit schema.yaml
 
 # Web
-mill https://example.com/article
-mill https://en.wikipedia.org/wiki/Markdown
+markit https://example.com/article
+markit https://en.wikipedia.org/wiki/Markdown
 
 # Media (with AI features — set OPENAI_API_KEY)
-mill photo.jpg              # EXIF metadata + AI description
-mill recording.mp3          # Audio metadata + transcription
+markit photo.jpg              # EXIF metadata + AI description
+markit recording.mp3          # Audio metadata + transcription
 
 # Write to file
-mill report.pdf -o report.md
+markit report.pdf -o report.md
 
 # Pipe it
-mill report.pdf | pbcopy
-mill data.xlsx -q | napkin create "Imported Data"
+markit report.pdf | pbcopy
+markit data.xlsx -q | napkin create "Imported Data"
 ```
 
 ---
@@ -83,22 +83,22 @@ Images and audio get metadata extraction for free. For AI-powered descriptions a
 
 ```bash
 export OPENAI_API_KEY=sk-...
-mill photo.jpg        # EXIF + "A sunset over mountains with..."
-mill interview.mp3    # Metadata + full transcript
+markit photo.jpg        # EXIF + "A sunset over mountains with..."
+markit interview.mp3    # Metadata + full transcript
 ```
 
 Or configure it:
 
 ```bash
-mill init
-mill config set llm.apiKey sk-...
-mill config set llm.model gpt-4o-mini
+markit init
+markit config set llm.apiKey sk-...
+markit config set llm.model gpt-4o-mini
 ```
 
 Works with any OpenAI-compatible API (OpenAI, Azure, Ollama, etc.):
 
 ```bash
-mill config set llm.apiBase http://localhost:11434/v1
+markit config set llm.apiBase http://localhost:11434/v1
 ```
 
 ---
@@ -109,49 +109,49 @@ Every command supports `--json`. Raw markdown with `-q`.
 
 ```bash
 # Structured output for parsing
-mill report.pdf --json
+markit report.pdf --json
 
 # Raw markdown, nothing else
-mill report.pdf -q
+markit report.pdf -q
 
 # Teach your agent about mill
-mill onboard
+markit onboard
 ```
 
 ---
 
 ## SDK
 
-mill is also a library:
+markit is also a library:
 
 ```typescript
-import { Mill } from "mill-ai";
+import { Mill } from "markit-ai";
 
-const mill = new Mill();
-const { markdown } = await mill.convertFile("report.pdf");
-const { markdown } = await mill.convertUrl("https://example.com");
-const { markdown } = await mill.convert(buffer, { extension: ".docx" });
+const markit = new Mill();
+const { markdown } = await markit.convertFile("report.pdf");
+const { markdown } = await markit.convertUrl("https://example.com");
+const { markdown } = await markit.convert(buffer, { extension: ".docx" });
 ```
 
 With AI features:
 
 ```typescript
 import OpenAI from "openai";
-import { Mill } from "mill-ai";
+import { Mill } from "markit-ai";
 
-const mill = new Mill({
+const markit = new Mill({
   llmClient: new OpenAI(),
   llmModel: "gpt-4o",
 });
 
-const { markdown } = await mill.convertFile("photo.jpg");
+const { markdown } = await markit.convertFile("photo.jpg");
 // → EXIF metadata + AI-generated description
 ```
 
 Individual converters are importable too:
 
 ```typescript
-import { PdfConverter, HtmlConverter } from "mill-ai";
+import { PdfConverter, HtmlConverter } from "markit-ai";
 ```
 
 ---
@@ -159,13 +159,13 @@ import { PdfConverter, HtmlConverter } from "mill-ai";
 ## Configuration
 
 ```bash
-mill init                              # Create .mill/config.json
-mill config show                       # Show resolved settings
-mill config get llm.model              # Get a value
-mill config set llm.apiKey sk-...      # Set a value
+markit init                              # Create .markit/config.json
+markit config show                       # Show resolved settings
+markit config get llm.model              # Get a value
+markit config set llm.apiKey sk-...      # Set a value
 ```
 
-`.mill/config.json`:
+`.markit/config.json`:
 
 ```json
 {
@@ -184,7 +184,7 @@ Env vars override config:
 |---------|---------|------------|---------|
 | API key | `OPENAI_API_KEY` | `llm.apiKey` | — |
 | API base | `OPENAI_BASE_URL` | `llm.apiBase` | `https://api.openai.com/v1` |
-| Model | `MILL_MODEL` | `llm.model` | `gpt-4o` |
+| Model | `MARKIT_MODEL` | `llm.model` | `gpt-4o` |
 | Transcription | — | `llm.transcriptionModel` | `gpt-4o-mini-transcribe` |
 
 ---
@@ -192,18 +192,18 @@ Env vars override config:
 ## CLI Reference
 
 ```bash
-mill <source>                          # Convert file or URL
-mill <source> -o output.md             # Write to file
-mill <source> -m gpt-4o-mini           # Override LLM model
-mill <source> --json                   # JSON output
-mill <source> -q                       # Raw markdown only
-cat file.pdf | mill -                  # Read from stdin
-mill formats                           # List supported formats
-mill init                              # Create .mill/ config
-mill config show                       # Show settings
-mill config get <key>                  # Get config value
-mill config set <key> <value>          # Set config value
-mill onboard                           # Add to CLAUDE.md
+markit <source>                          # Convert file or URL
+markit <source> -o output.md             # Write to file
+markit <source> -m gpt-4o-mini           # Override LLM model
+markit <source> --json                   # JSON output
+markit <source> -q                       # Raw markdown only
+cat file.pdf | markit -                  # Read from stdin
+markit formats                           # List supported formats
+markit init                              # Create .markit/ config
+markit config show                       # Show settings
+markit config get <key>                  # Get config value
+markit config set <key> <value>          # Set config value
+markit onboard                           # Add to CLAUDE.md
 ```
 
 ---

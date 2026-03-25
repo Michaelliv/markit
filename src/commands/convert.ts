@@ -1,6 +1,6 @@
 import { writeFileSync } from "node:fs";
 import { extname } from "node:path";
-import { Mill } from "../mill.js";
+import { Markit } from "../markit.js";
 import { loadConfig, resolveModel } from "../config.js";
 import { createLlmClient } from "../llm.js";
 import type { OutputOptions } from "../utils/output.js";
@@ -23,7 +23,7 @@ export async function convert(
   const llmClient = createLlmClient(config);
   const llmModel = resolveModel(config, options.model);
 
-  const mill = new Mill({
+  const markit = new Markit({
     llmClient: llmClient ?? undefined,
     llmModel,
   });
@@ -40,20 +40,20 @@ export async function convert(
       // Check if stdin is a TTY (no piped input)
       if (process.stdin.isTTY) {
         error(
-          "No input on stdin. Pipe a file: cat report.pdf | mill -",
+          "No input on stdin. Pipe a file: cat report.pdf | markit -",
         );
         process.exit(EXIT_ERROR);
       }
       const buffer = await readStdin();
-      result = await mill.convert(buffer, {});
+      result = await markit.convert(buffer, {});
     } else if (isUrl) {
       // Progress hint for URL fetches
       if (!options.json && !options.quiet) {
         info(`Fetching ${source}...`);
       }
-      result = await mill.convertUrl(source);
+      result = await markit.convertUrl(source);
     } else {
-      result = await mill.convertFile(source);
+      result = await markit.convertFile(source);
     }
 
     const label = isStdin ? "stdin" : source;
@@ -95,7 +95,7 @@ export async function convert(
         json: () => ({ success: false, error: msg }),
         human: () => {
           error(msg);
-          console.log(dim("  Run 'mill formats' to see supported formats."));
+          console.log(dim("  Run 'markit formats' to see supported formats."));
         },
       });
       process.exit(EXIT_UNSUPPORTED);
