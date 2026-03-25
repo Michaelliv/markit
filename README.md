@@ -37,7 +37,7 @@ markit schema.yaml
 markit https://example.com/article
 markit https://en.wikipedia.org/wiki/Markdown
 
-# Media (via LLMs — set OPENAI_API_KEY or ANTHROPIC_API_KEY)
+# Media (via LLMs. set OPENAI_API_KEY or ANTHROPIC_API_KEY)
 markit photo.jpg                          # EXIF metadata + AI description
 markit recording.mp3                      # Audio metadata + transcription
 markit photo.jpg -p "Extract all text"    # Custom instructions
@@ -70,7 +70,7 @@ markit data.xlsx -q | napkin create "Imported Data"
 | XML/SVG | `.xml` `.svg` | Code block |
 | Images | `.jpg` `.png` `.gif` `.webp` | EXIF metadata + optional AI description |
 | Audio | `.mp3` `.wav` `.m4a` `.flac` | Metadata + optional AI transcription |
-| ZIP | `.zip` | Recursive — converts each file inside |
+| ZIP | `.zip` | Recursive. converts each file inside |
 | URLs | `http://` `https://` | Fetches with `Accept: text/markdown` |
 | Wikipedia | `*.wikipedia.org` | Main content extraction |
 | Code | `.py` `.ts` `.go` `.rs` ... | Fenced code block |
@@ -149,7 +149,7 @@ export default function(api: MarkitPluginAPI) {
 }
 ```
 
-Plugin converters run **before** builtins — so you can override any format:
+Plugin converters run **before** builtins. so you can override any format:
 
 ```typescript
 export default function(api: MarkitPluginAPI) {
@@ -208,7 +208,7 @@ const { markdown } = await markit.convertUrl("https://example.com");
 const { markdown } = await markit.convert(buffer, { extension: ".docx" });
 ```
 
-With AI features — pass plain functions, use any provider:
+With AI features. pass plain functions, use any provider:
 
 ```typescript
 import OpenAI from "openai";
@@ -237,7 +237,7 @@ const markit = new Markit({
 });
 ```
 
-Mix providers — Claude for vision, OpenAI for audio, whatever:
+Mix providers. Claude for vision, OpenAI for audio, whatever:
 
 ```typescript
 const markit = new Markit({
@@ -255,7 +255,7 @@ const markit = new Markit({
 });
 ```
 
-Or use the built-in providers — no SDK needed:
+Or use the built-in providers. no SDK needed:
 
 ```typescript
 import { Markit, createLlmFunctions, loadConfig } from "markit-ai";
