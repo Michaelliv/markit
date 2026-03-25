@@ -14,7 +14,7 @@ const BUILTIN_FORMATS: Format[] = [
   { name: "PDF", extensions: [".pdf"], builtin: true },
   { name: "Word", extensions: [".docx"], builtin: true },
   { name: "PowerPoint", extensions: [".pptx"], builtin: true },
-  { name: "Excel", extensions: [".xlsx", ".xls"], builtin: true, dep: "xlsx" },
+  { name: "Excel", extensions: [".xlsx"], builtin: true },
   { name: "HTML", extensions: [".html", ".htm"], builtin: true },
   { name: "EPUB", extensions: [".epub"], builtin: true },
   { name: "Jupyter", extensions: [".ipynb"], builtin: true },

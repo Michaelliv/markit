@@ -59,7 +59,7 @@ markit data.xlsx -q | napkin create "Imported Data"
 | PDF | `.pdf` | Text extraction via unpdf |
 | Word | `.docx` | mammoth → turndown, preserves headings/tables |
 | PowerPoint | `.pptx` | XML parsing, slides + notes + tables |
-| Excel | `.xlsx` `.xls` | Each sheet → markdown table *(optional dep)* |
+| Excel | `.xlsx` | Each sheet → markdown table |
 | HTML | `.html` `.htm` | turndown, scripts/styles stripped |
 | EPUB | `.epub` | Spine-ordered chapters, metadata header |
 | Jupyter | `.ipynb` | Markdown cells + code + outputs |
