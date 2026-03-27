@@ -24,6 +24,7 @@ markit schema.yaml
 # Web
 markit https://example.com/article
 markit https://en.wikipedia.org/wiki/Markdown
+markit https://github.com/TanStack/table/discussions/5834
 
 # Media (via LLMs. set OPENAI_API_KEY or ANTHROPIC_API_KEY)
 markit photo.jpg                          # EXIF metadata + AI description
@@ -58,6 +59,7 @@ markit data.xlsx -q | napkin create "Imported Data"
 | XML/SVG | `.xml` `.svg` | Code block |
 | Images | `.jpg` `.png` `.gif` `.webp` | EXIF metadata + optional AI description |
 | Audio | `.mp3` `.wav` `.m4a` `.flac` | Metadata + optional AI transcription |
+| GitHub | `github.com/*` `gist.github.com/*` | Domain-specific reader via r.jina.ai |
 | ZIP | `.zip` | Recursive. converts each file inside |
 | URLs | `http://` `https://` | Fetches with `Accept: text/markdown` |
 | Wikipedia | `*.wikipedia.org` | Main content extraction |
@@ -151,6 +153,26 @@ export default function(api: MarkitPluginAPI) {
       // Your superior PDF extraction
       return { markdown: "..." };
     },
+  });
+}
+```
+
+For site-specific URLs, plugins can also implement `convertUrl()` to bypass markit's default fetch path:
+
+```typescript
+async function readViaJina(url: string) {
+  const target = new URL(url);
+  const proxied = `https://r.jina.ai/http://${target.host}${target.pathname}${target.search}${target.hash}`;
+  const markdown = await fetch(proxied).then((res) => res.text());
+  return { markdown };
+}
+
+export default function(api: MarkitPluginAPI) {
+  api.registerConverter({
+    name: "github",
+    accepts: (info) => info.url?.includes("github.com/") ?? false,
+    convert: async (_input, info) => readViaJina(info.url!),
+    convertUrl: async (url) => readViaJina(url),
   });
 }
 ```

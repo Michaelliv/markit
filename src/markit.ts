@@ -4,6 +4,7 @@ import { AudioConverter } from "./converters/audio.js";
 import { CsvConverter } from "./converters/csv.js";
 import { DocxConverter } from "./converters/docx.js";
 import { EpubConverter } from "./converters/epub.js";
+import { GitHubConverter } from "./converters/github.js";
 import { HtmlConverter } from "./converters/html.js";
 import { ImageConverter } from "./converters/image.js";
 import { IpynbConverter } from "./converters/ipynb.js";
@@ -43,6 +44,7 @@ export class Markit {
       new XlsxConverter(),
       new EpubConverter(),
       new IpynbConverter(),
+      new GitHubConverter(),
       new WikipediaConverter(),
       new RssConverter(),
       new CsvConverter(),
@@ -85,6 +87,19 @@ export class Markit {
    * Convert a URL to markdown.
    */
   async convertUrl(url: string): Promise<ConversionResult> {
+    const streamInfo = createUrlStreamInfo(url);
+
+    for (const converter of this.converters) {
+      if (!converter.convertUrl) continue;
+      if (!converter.accepts(streamInfo)) continue;
+
+      try {
+        return await converter.convertUrl(url, streamInfo, this.options);
+      } catch {
+        // Fall through to the default fetch path if the URL-specific reader fails.
+      }
+    }
+
     const response = await fetch(url, {
       headers: {
         Accept: "text/markdown, text/html;q=0.9, text/plain;q=0.8, */*;q=0.1",
@@ -99,21 +114,20 @@ export class Markit {
     }
 
     const contentType = response.headers.get("content-type") || "";
-    const [mimetype] = contentType.split(";");
-
-    // Derive extension from URL path
-    const urlPath = new URL(url).pathname;
-    const ext = extname(urlPath).toLowerCase();
+    const [mimetype, ...params] = contentType.split(";");
+    const charset = params
+      .map((part) => part.trim())
+      .find((part) => part.toLowerCase().startsWith("charset="))
+      ?.slice("charset=".length);
 
     const buffer = Buffer.from(await response.arrayBuffer());
-    const streamInfo: StreamInfo = {
-      url,
+    const fetchedStreamInfo: StreamInfo = {
+      ...streamInfo,
       mimetype: mimetype.trim(),
-      extension: ext || undefined,
-      filename: basename(urlPath) || undefined,
+      charset,
     };
 
-    return this.convert(buffer, streamInfo);
+    return this.convert(buffer, fetchedStreamInfo);
   }
 
   /**
@@ -149,4 +163,16 @@ export class Markit {
       `Unsupported format: ${streamInfo.extension || streamInfo.mimetype || "unknown"}`,
     );
   }
+}
+
+function createUrlStreamInfo(url: string): StreamInfo {
+  const parsed = new URL(url);
+  const extension = extname(parsed.pathname).toLowerCase() || undefined;
+  const filename = basename(parsed.pathname) || undefined;
+
+  return {
+    url,
+    extension,
+    filename,
+  };
 }
