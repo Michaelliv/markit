@@ -173,6 +173,12 @@ api.registerProvider({
 
 ## For Agents
 
+Install as an [agent skill](https://skills.sh/):
+
+```bash
+npx skills add Michaelliv/markit
+```
+
 Every command supports `--json`. Raw markdown with `-q`.
 
 ```bash
