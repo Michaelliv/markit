@@ -8,7 +8,7 @@ import { HtmlConverter } from "./converters/html.js";
 import { ImageConverter } from "./converters/image.js";
 import { IpynbConverter } from "./converters/ipynb.js";
 import { JsonConverter } from "./converters/json.js";
-import { PdfConverter } from "./converters/pdf.js";
+import { PdfConverter } from "./converters/pdf/index.js";
 import { PlainTextConverter } from "./converters/plain-text.js";
 import { PptxConverter } from "./converters/pptx.js";
 import { RssConverter } from "./converters/rss.js";

@@ -5,6 +5,8 @@ export interface StreamInfo {
   filename?: string;
   localPath?: string;
   url?: string;
+  /** Directory to write extracted images/diagrams. */
+  imageDir?: string;
 }
 
 export interface ConversionResult {
