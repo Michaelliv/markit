@@ -1,6 +1,25 @@
 import { XMLParser } from "fast-xml-parser";
 import JSZip from "jszip";
-import type { ConversionResult, Converter, StreamInfo } from "../types.js";
+import type {
+  ConversionResult,
+  Converter,
+  MarkitOptions,
+  StreamInfo,
+} from "../types.js";
+
+const IMAGE_MIMETYPES: Record<string, string> = {
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".gif": "image/gif",
+  ".bmp": "image/bmp",
+  ".tiff": "image/tiff",
+  ".tif": "image/tiff",
+  ".webp": "image/webp",
+  ".svg": "image/svg+xml",
+  ".emf": "image/emf",
+  ".wmf": "image/wmf",
+};
 
 const EXTENSIONS = [".pptx"];
 const MIMETYPES = [
@@ -24,6 +43,7 @@ export class PptxConverter implements Converter {
   async convert(
     input: Buffer,
     _streamInfo: StreamInfo,
+    options?: MarkitOptions,
   ): Promise<ConversionResult> {
     const zip = await JSZip.loadAsync(input);
     const parser = new XMLParser({
@@ -83,12 +103,22 @@ export class PptxConverter implements Converter {
     const sections: string[] = [];
 
     for (let i = 0; i < slidePaths.length; i++) {
-      const slideXml = await zip.file(slidePaths[i])?.async("string");
+      const slidePath = slidePaths[i];
+      const slideXml = await zip.file(slidePath)?.async("string");
       if (!slideXml) continue;
 
       const slide = parser.parse(slideXml);
       const spTree = slide["p:sld"]?.["p:cSld"]?.["p:spTree"];
       if (!spTree) continue;
+
+      // Load slide-level relationships for image resolution
+      const slideRelsPath =
+        slidePath.replace("slides/slide", "slides/_rels/slide") + ".rels";
+      const slideRelMap = await this.loadRelationships(
+        zip,
+        parser,
+        slideRelsPath,
+      );
 
       const slideLines: string[] = [`<!-- Slide ${i + 1} -->`];
       const shapes = spTree["p:sp"];
@@ -107,6 +137,19 @@ export class PptxConverter implements Converter {
         }
       }
 
+      // Images
+      const pics = spTree["p:pic"];
+      const picList = Array.isArray(pics) ? pics : pics ? [pics] : [];
+      for (const pic of picList) {
+        const imageMarkdown = await this.extractImage(
+          pic,
+          zip,
+          slideRelMap,
+          options,
+        );
+        if (imageMarkdown) slideLines.push(imageMarkdown);
+      }
+
       // Tables
       const graphicFrames = spTree["p:graphicFrame"];
       const gfList = Array.isArray(graphicFrames)
@@ -120,7 +163,7 @@ export class PptxConverter implements Converter {
       }
 
       // Slide notes
-      const noteFile = slidePaths[i].replace(
+      const noteFile = slidePath.replace(
         "slides/slide",
         "notesSlides/notesSlide",
       );
@@ -154,6 +197,77 @@ export class PptxConverter implements Converter {
     }
 
     return { markdown: sections.join("\n\n").trim() };
+  }
+
+  private async loadRelationships(
+    zip: JSZip,
+    parser: XMLParser,
+    relsPath: string,
+  ): Promise<Map<string, string>> {
+    const map = new Map<string, string>();
+    const xml = await zip.file(relsPath)?.async("string");
+    if (!xml) return map;
+    const parsed = parser.parse(xml);
+    const rels = parsed?.Relationships?.Relationship;
+    const list = Array.isArray(rels) ? rels : rels ? [rels] : [];
+    for (const r of list) {
+      map.set(r["@_Id"], r["@_Target"]);
+    }
+    return map;
+  }
+
+  private async extractImage(
+    pic: any,
+    zip: JSZip,
+    slideRelMap: Map<string, string>,
+    options?: MarkitOptions,
+  ): Promise<string | null> {
+    // Get the relationship ID for the embedded image
+    const blip = pic["p:blipFill"]?.["a:blip"];
+    if (!blip) return null;
+
+    const rId = blip["@_r:embed"];
+    if (!rId) return null;
+
+    // Resolve relationship to file path (targets are relative to slides/)
+    const target = slideRelMap.get(rId);
+    if (!target) return null;
+
+    const imagePath = target.startsWith("../")
+      ? `ppt/${target.slice(3)}`
+      : `ppt/slides/${target}`;
+
+    const imageFile = zip.file(imagePath);
+    if (!imageFile) return null;
+
+    const imageName = imagePath.split("/").pop() || "image";
+    const ext = `.${imageName.split(".").pop()?.toLowerCase() || "png"}`;
+    const mimetype = IMAGE_MIMETYPES[ext] || "image/png";
+
+    // Use shape name / alt text if available
+    const cNvPr = pic["p:nvPicPr"]?.["p:cNvPr"];
+    const shapeName = cNvPr?.["@_name"] || "";
+    const altText = cNvPr?.["@_descr"] || "";
+    const label = shapeName || imageName;
+
+    // AI description when available
+    if (options?.describe) {
+      try {
+        const buffer = Buffer.from(await imageFile.async("nodebuffer"));
+        const description = await options.describe(buffer, mimetype);
+        if (description) {
+          return `\n**[Image: ${label}]**\n\n${description}`;
+        }
+      } catch {
+        // AI description failed, fall through to placeholder
+      }
+    }
+
+    // Fallback: placeholder with alt text if present
+    if (altText) {
+      return `*[Image: ${label} — ${altText}]*`;
+    }
+    return `*[Image: ${label}]*`;
   }
 
   private extractText(shape: any): string {
