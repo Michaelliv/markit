@@ -110,5 +110,27 @@ describe("PptxConverter", () => {
       const slide1 = slides[1];
       expect(slide1).not.toContain("[Image:");
     });
+
+    it("extracts images from inside groups", async () => {
+      const buffer = readFileSync(FIXTURE);
+      const result = await converter.convert(buffer, streamInfo());
+      // Slide 4 has a grouped image named "Green Square"
+      expect(result.markdown).toContain("Green Square");
+    });
+
+    it("extracts grouped images with describe function", async () => {
+      const buffer = readFileSync(FIXTURE);
+      const describedCount = { value: 0 };
+      const options: MarkitOptions = {
+        describe: async () => {
+          describedCount.value++;
+          return "described";
+        },
+      };
+      const result = await converter.convert(buffer, streamInfo(), options);
+      // Should describe images from all slides including grouped ones
+      // Slides 2, 3, and 4 each have one image
+      expect(describedCount.value).toBe(3);
+    });
   });
 });

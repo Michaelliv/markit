@@ -137,10 +137,9 @@ export class PptxConverter implements Converter {
         }
       }
 
-      // Images
-      const pics = spTree["p:pic"];
-      const picList = Array.isArray(pics) ? pics : pics ? [pics] : [];
-      for (const pic of picList) {
+      // Images (including those nested inside groups)
+      const allPics = this.collectPics(spTree);
+      for (const pic of allPics) {
         const imageMarkdown = await this.extractImage(
           pic,
           zip,
@@ -199,6 +198,21 @@ export class PptxConverter implements Converter {
     return { markdown: sections.join("\n\n").trim() };
   }
 
+  private collectPics(node: any): any[] {
+    const pics: any[] = [];
+    // Top-level pictures
+    const topPics = node["p:pic"];
+    const topList = Array.isArray(topPics) ? topPics : topPics ? [topPics] : [];
+    pics.push(...topList);
+    // Recurse into groups
+    const groups = node["p:grpSp"];
+    const grpList = Array.isArray(groups) ? groups : groups ? [groups] : [];
+    for (const grp of grpList) {
+      pics.push(...this.collectPics(grp));
+    }
+    return pics;
+  }
+
   private async loadRelationships(
     zip: JSZip,
     parser: XMLParser,
@@ -229,13 +243,21 @@ export class PptxConverter implements Converter {
     const rId = blip["@_r:embed"];
     if (!rId) return null;
 
-    // Resolve relationship to file path (targets are relative to slides/)
+    // Resolve relationship to file path
     const target = slideRelMap.get(rId);
     if (!target) return null;
 
-    const imagePath = target.startsWith("../")
-      ? `ppt/${target.slice(3)}`
-      : `ppt/slides/${target}`;
+    let imagePath: string;
+    if (target.startsWith("/")) {
+      // Package-absolute: /ppt/media/image1.png → ppt/media/image1.png
+      imagePath = target.slice(1);
+    } else if (target.startsWith("../")) {
+      // Relative to slides/: ../media/image1.png → ppt/media/image1.png
+      imagePath = `ppt/${target.slice(3)}`;
+    } else {
+      // Relative to slides directory
+      imagePath = `ppt/slides/${target}`;
+    }
 
     const imageFile = zip.file(imagePath);
     if (!imageFile) return null;
