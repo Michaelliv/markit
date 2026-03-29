@@ -130,7 +130,7 @@ export class EpubConverter implements Converter {
 
   private getText(node: any): string | undefined {
     if (!node) return undefined;
-    if (typeof node === "string") return node;
+    if (typeof node === "string") return decodeXmlEntities(node);
     if (node["#text"]) return decodeXmlEntities(String(node["#text"]));
     if (Array.isArray(node)) return this.getText(node[0]);
     return undefined;
