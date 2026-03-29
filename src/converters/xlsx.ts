@@ -1,6 +1,7 @@
 import { XMLParser } from "fast-xml-parser";
 import JSZip from "jszip";
 import type { ConversionResult, Converter, StreamInfo } from "../types.js";
+import { decodeXmlEntities } from "../xml-utils.js";
 
 const EXTENSIONS = [".xlsx"];
 const MIMETYPES = [
@@ -30,6 +31,7 @@ export class XlsxConverter implements Converter {
       ignoreAttributes: false,
       attributeNamePrefix: "@_",
       textNodeName: "#text",
+      processEntities: false,
     });
 
     // Parse shared strings
@@ -149,8 +151,8 @@ export class XlsxConverter implements Converter {
 
 function textValue(t: any): string {
   if (t == null) return "";
-  if (typeof t === "object") return t["#text"] || "";
-  return String(t);
+  if (typeof t === "object") return decodeXmlEntities(t["#text"] || "");
+  return decodeXmlEntities(String(t));
 }
 
 function toArray(val: any): any[] {

@@ -2,6 +2,7 @@ import { XMLParser } from "fast-xml-parser";
 import JSZip from "jszip";
 import type { ConversionResult, Converter, StreamInfo } from "../types.js";
 import { createTurndown, normalizeTablesHtml } from "../utils/turndown.js";
+import { decodeXmlEntities } from "../xml-utils.js";
 
 const EXTENSIONS = [".epub"];
 const MIMETYPES = [
@@ -33,6 +34,7 @@ export class EpubConverter implements Converter {
       ignoreAttributes: false,
       attributeNamePrefix: "@_",
       textNodeName: "#text",
+      processEntities: false,
     });
 
     // Find content.opf path from container.xml
@@ -129,7 +131,7 @@ export class EpubConverter implements Converter {
   private getText(node: any): string | undefined {
     if (!node) return undefined;
     if (typeof node === "string") return node;
-    if (node["#text"]) return String(node["#text"]);
+    if (node["#text"]) return decodeXmlEntities(String(node["#text"]));
     if (Array.isArray(node)) return this.getText(node[0]);
     return undefined;
   }

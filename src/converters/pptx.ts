@@ -1,6 +1,7 @@
 import { XMLParser } from "fast-xml-parser";
 import JSZip from "jszip";
 import type { ConversionResult, Converter, StreamInfo } from "../types.js";
+import { decodeXmlEntities } from "../xml-utils.js";
 
 const EXTENSIONS = [".pptx"];
 const MIMETYPES = [
@@ -30,6 +31,7 @@ export class PptxConverter implements Converter {
       ignoreAttributes: false,
       attributeNamePrefix: "@_",
       textNodeName: "#text",
+      processEntities: false,
     });
 
     // Get slide order from presentation.xml
@@ -175,7 +177,9 @@ export class PptxConverter implements Converter {
       for (const r of rList) {
         const t = r["a:t"];
         if (t != null)
-          parts.push(typeof t === "object" ? t["#text"] || "" : String(t));
+          parts.push(
+            decodeXmlEntities(typeof t === "object" ? t["#text"] || "" : String(t)),
+          );
       }
       if (parts.length > 0) lines.push(parts.join(""));
     }
@@ -215,7 +219,9 @@ export class PptxConverter implements Converter {
           for (const r of rList) {
             const t = r["a:t"];
             if (t != null)
-              parts.push(typeof t === "object" ? t["#text"] || "" : String(t));
+              parts.push(
+                decodeXmlEntities(typeof t === "object" ? t["#text"] || "" : String(t)),
+              );
           }
         }
         cellTexts.push(parts.join(" "));
